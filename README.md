@@ -74,26 +74,118 @@ Configured in `docker-compose.yml`:
 - **Password:** `sr_password`
 - **Root password:** `rootpassword`
 
-## Automatic Database Initialization
+## Database Initialization, Migration, and Seeding
 
-On the first `docker compose up`, MySQL executes SQL scripts from:
+### A) Automatic init on first Docker startup
+
+When MySQL starts with an empty volume, Docker executes SQL files in:
 
 - `database/init/001_init_schema.sql`
+- `database/init/002_seed_core_data.sql`
 
-This script creates the baseline schema:
+This provides baseline schema + seed data automatically.
 
-- `users`
-- `products`
-- `inventory`
-- `orders`
-- `order_items`
+```bash
+docker compose up --build -d
+```
 
-> Note: SQL init scripts are applied when the MySQL data volume is empty. If you already have data, run `docker compose down -v` and start again to re-apply initialization scripts.
+If you need to re-run automatic init scripts, reset volume first:
 
-## Baseline API Plan (from specification)
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+---
+
+### B) Manual migration/seeding via backend scripts
+
+Manual scripts are useful when you want controlled schema/data updates without resetting Docker volumes.
+
+#### SQL sources
+- Migrations: `database/migrations/*.sql`
+- Seeders: `database/seeders/*.sql`
+
+Current files:
+- `database/migrations/001_create_core_tables.sql`
+- `database/seeders/001_seed_core_data.sql`
+
+#### Run commands
+From `backend/` directory:
+
+```bash
+npm run migrate
+npm run seed
+```
+
+Execution behavior:
+- Files are executed in lexicographical order
+- Migration runner applies all `.sql` files under `database/migrations`
+- Seeder runner applies all `.sql` files under `database/seeders`
+
+---
+
+### C) Recommended workflow for team
+
+1. Start services:
+
+```bash
+docker compose up -d
+```
+
+2. Apply latest migrations:
+
+```bash
+cd backend
+npm run migrate
+```
+
+3. Apply seed data:
+
+```bash
+npm run seed
+```
+
+4. Return to repo root (optional):
+
+```bash
+cd ..
+```
+
+---
+
+### D) Seeder data scope (current)
+
+`001_seed_core_data.sql` currently includes:
+- Users: `admin`, `manager01`, `staff01`
+- Products: `SKU-A`, `SKU-B`, `SKU-C`
+- Inventory rows for each product
+- Sample orders + order_items
+
+This is enough for baseline API smoke testing and demo responses.
+
+---
+
+### E) Important notes
+
+- Auto init scripts (`database/init`) run only with empty MySQL volume.
+- Manual `migrate/seed` scripts can be re-run without deleting volume.
+- For deterministic full reset in local dev, prefer:
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+## Backend API Status (Implemented)
+
+### Health & Dashboard
+- `GET /health`
+- `GET /api/v1/dashboard/summary`
 
 ### Data Management
-- `POST /api/v1/data/upload`
+- `POST /api/v1/data/upload`  
+  Current status: skeleton is implemented (file presence validation + service hook). Full CSV/Excel transactional import is in progress.
 
 ### Analytics
 - `GET /api/v1/analytics/revenue`
