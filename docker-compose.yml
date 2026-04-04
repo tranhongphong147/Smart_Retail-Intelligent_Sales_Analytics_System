@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sr-ias-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: smart_retail
+      MYSQL_USER: sr_user
+      MYSQL_PASSWORD: sr_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: sr-ias-backend
+    ports:
+      - "8081:8080"
+    environment:
+      PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: smart_retail
+      DB_USER: sr_user
+      DB_PASSWORD: sr_password
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: sr-ias-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WDS_SOCKET_PORT: "0"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
