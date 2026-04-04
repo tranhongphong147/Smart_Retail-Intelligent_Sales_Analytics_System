@@ -1,13 +1,7 @@
-import { env } from '../config/env.js';
 import { query } from '../db/pool.js';
-import { mockForecast, mockRecommendations } from '../utils/mockData.js';
 
 export async function getForecast({ horizonDays = 7 }) {
   const safeHorizon = Math.min(Math.max(Number(horizonDays) || 7, 7), 30);
-
-  if (env.useMockData) {
-    return { ...mockForecast, horizonDays: safeHorizon };
-  }
 
   const [avgRevenueRow] = await query(
     `SELECT COALESCE(AVG(total_amount), 0) AS avgRevenue
@@ -37,10 +31,6 @@ export async function getForecast({ horizonDays = 7 }) {
 }
 
 export async function getRecommendations() {
-  if (env.useMockData) {
-    return mockRecommendations;
-  }
-
   const lowStock = await query(
     `SELECT p.id AS productId, p.sku, p.name, i.current_quantity AS currentQuantity, p.min_stock_level AS minStockLevel
      FROM products p
@@ -93,13 +83,6 @@ export async function askChatbot({ question }) {
     return {
       answer: 'Please provide a question.',
       context: []
-    };
-  }
-
-  if (env.useMockData) {
-    return {
-      answer: 'Mock mode: Revenue is stable this month, but Product B has low stock risk. Consider restocking and reviewing slow-moving items for promotions.',
-      context: [{ key: 'question', value: normalized }]
     };
   }
 

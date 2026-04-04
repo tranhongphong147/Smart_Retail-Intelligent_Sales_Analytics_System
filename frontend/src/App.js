@@ -1,64 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import Sidebar from './components/layout/Sidebar';
+import TopNav from './components/layout/TopNav';
+import DashboardPage from './pages/DashboardPage';
+import SalesPage from './pages/SalesPage';
+import InventoryPage from './pages/InventoryPage';
+import AIPredictionsPage from './pages/AIPredictionsPage';
+import RecommendationsPage from './pages/RecommendationsPage';
+import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
-function App() {
-  const [health, setHealth] = useState('checking...');
-  const [summary, setSummary] = useState(null);
-  const [summaryError, setSummaryError] = useState('');
+function AppShell() {
+  const location = useLocation();
 
-  useEffect(() => {
-    fetch('http://localhost:8081/health')
-      .then((res) => res.json())
-      .then((data) => setHealth(`${data.status} (${data.service})`))
-      .catch(() => setHealth('backend unreachable'));
+  const pageMeta = {
+    '/': { title: 'Dashboard', subtitle: "Here's what's happening with your business today." },
+    '/sales': { title: 'Sales Analytics', subtitle: 'Detailed breakdown of your sales performance and trends.' },
+    '/inventory': { title: 'Inventory Analysis', subtitle: 'Track stock movements, risks, and replenishment needs.' },
+    '/ai-predictions': { title: 'AI Predictions', subtitle: 'Forecast demand and revenue using AI models.' },
+    '/recommendations': { title: 'Smart Recommendations', subtitle: 'Actionable suggestions for restocking and pricing strategy.' },
+    '/reports': { title: 'Reports', subtitle: 'Generate and review periodic performance reports.' },
+    '/settings': { title: 'Settings', subtitle: 'Configure account and workspace preferences.' }
+  };
 
-    fetch('http://localhost:8081/api/v1/dashboard/summary')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Cannot load dashboard summary');
-        }
-        return res.json();
-      })
-      .then((data) => setSummary(data))
-      .catch((err) => setSummaryError(err.message));
-  }, []);
+  const currentMeta = pageMeta[location.pathname] || pageMeta['/'];
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <h1>Smart Retail - Intelligent Sales Analytics System</h1>
-      <p>Frontend container is running.</p>
-      <p>Backend health: <strong>{health}</strong></p>
-
-      <section style={{ marginTop: 24, padding: 16, border: '1px solid #ddd', borderRadius: 8 }}>
-        <h2>Dashboard Summary (Milestone 1 Output)</h2>
-
-        {summaryError && <p style={{ color: '#b00020' }}>{summaryError}</p>}
-
-        {!summary && !summaryError && <p>Loading summary...</p>}
-
-        {summary && (
-          <>
-            <p><strong>Project:</strong> {summary.project}</p>
-            <p><strong>Status:</strong> {summary.status}</p>
-            <p><strong>Generated at:</strong> {summary.generatedAt}</p>
-
-            <h3>KPIs</h3>
-            <ul>
-              <li>Total Revenue Today: {summary.kpis.totalRevenueToday.toLocaleString('vi-VN')} VND</li>
-              <li>Total Orders Today: {summary.kpis.totalOrdersToday}</li>
-              <li>Low Stock Alerts: {summary.kpis.lowStockAlerts}</li>
-            </ul>
-
-            <h3>Highlights</h3>
-            <ul>
-              {summary.highlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
-    </main>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f6f8fb' }}>
+      <Sidebar />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <TopNav title={currentMeta.title} subtitle={currentMeta.subtitle} />
+        <main style={{ minHeight: 'calc(100vh - 64px)' }}>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/sales" element={<SalesPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/ai-predictions" element={<AIPredictionsPage />} />
+            <Route path="/recommendations" element={<RecommendationsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/profile" element={<SettingsPage defaultTab="profile" />} />
+            <Route path="/settings" element={<SettingsPage defaultTab="business" />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
+  );
+}

@@ -23,3 +23,25 @@ FROM (
 ) d
 JOIN products p ON p.sku = d.sku
 ON DUPLICATE KEY UPDATE current_quantity = VALUES(current_quantity);
+
+INSERT INTO orders (order_date, total_amount, status)
+VALUES
+  ('2026-04-01 10:15:00', 350000, 'completed'),
+  ('2026-04-02 14:22:00', 420000, 'completed'),
+  ('2026-04-03 16:08:00', 250000, 'completed'),
+  ('2026-04-04 09:30:00', 510000, 'completed'),
+  ('2026-04-04 11:45:00', 130000, 'canceled');
+
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)
+SELECT o.id, p.id, d.quantity, d.price_at_purchase
+FROM (
+  SELECT '2026-04-01 10:15:00' AS order_date, 'SKU-A' AS sku, 10 AS quantity, 18000 AS price_at_purchase
+  UNION ALL
+  SELECT '2026-04-02 14:22:00', 'SKU-B', 7, 13000
+  UNION ALL
+  SELECT '2026-04-03 16:08:00', 'SKU-C', 5, 49000
+  UNION ALL
+  SELECT '2026-04-04 09:30:00', 'SKU-A', 12, 18000
+) d
+JOIN orders o ON o.order_date = d.order_date
+JOIN products p ON p.sku = d.sku;
