@@ -3,13 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Brain, ChevronRight, FileBarChart2, LayoutDashboard, Lightbulb, Package, Settings, TrendingUp, Zap } from 'lucide-react';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/sales', label: 'Sales Analytics', icon: TrendingUp },
-  { path: '/inventory', label: 'Inventory Analysis', icon: Package },
-  { path: '/ai-predictions', label: 'AI Predictions', icon: Brain },
-  { path: '/recommendations', label: 'Smart Recommendations', icon: Lightbulb },
-  { path: '/reports', label: 'Reports', icon: FileBarChart2 },
-  { path: '/settings', label: 'Settings', icon: Settings }
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard }
 ];
 
 function LinkItem({ item }) {
@@ -55,16 +49,8 @@ export default function Sidebar() {
       </div>
 
       <nav style={{ flex: 1, padding: 12, overflowY: 'auto' }}>
-        <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', fontWeight: 600, letterSpacing: 0.8, padding: '4px 10px' }}>Main Menu</div>
         <div style={{ display: 'grid', gap: 3, marginBottom: 16 }}>
-          {navItems.slice(0, 5).map((item) => (
-            <LinkItem key={item.path} item={item} />
-          ))}
-        </div>
-
-        <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', fontWeight: 600, letterSpacing: 0.8, padding: '4px 10px' }}>Management</div>
-        <div style={{ display: 'grid', gap: 3 }}>
-          {navItems.slice(5).map((item) => (
+          {navItems.map((item) => (
             <LinkItem key={item.path} item={item} />
           ))}
         </div>
