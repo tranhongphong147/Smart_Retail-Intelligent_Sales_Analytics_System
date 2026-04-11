@@ -1,0 +1,33 @@
+:root {
+  --surface: #ffffff;
+  --surface-subtle: #f8fafc;
+  --border: #edf2f7;
+  --text: #111827;
+  --muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
+  background: #f6f8fb;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+@keyframes pulseMove {
+  0% {
+    background-position: 0% 0;
+  }
+
+  100% {
+    background-position: 100% 0;
+  }
+}
