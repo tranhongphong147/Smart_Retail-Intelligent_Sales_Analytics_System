@@ -30,3 +30,20 @@ export function getDashboardSummary() {
 export function getDashboardOverview() {
   return request('/dashboard/overview');
 }
+
+// Product Management
+export function getProducts(params = {}) {
+  return request('/products', params);
+}
+
+export function createProduct(payload) {
+  return request('/products', {}, { method: 'POST', body: payload });
+}
+
+export function updateProduct(id, payload) {
+  return request(`/products/${id}`, {}, { method: 'PUT', body: payload });
+}
+
+export function deleteProduct(id) {
+  return request(`/products/${id}`, {}, { method: 'DELETE' });
+}

@@ -3,12 +3,14 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import Sidebar from './components/layout/Sidebar';
 import TopNav from './components/layout/TopNav';
 import DashboardPage from './pages/DashboardPage';
+import ProductsPage from './pages/ProductsPage';
 
 function AppShell() {
   const location = useLocation();
 
   const pageMeta = {
-    '/': { title: 'Dashboard', subtitle: "Here's what's happening with your business today." }
+    '/': { title: 'Dashboard', subtitle: "Here's what's happening with your business today." },
+    '/products': { title: 'Products', subtitle: 'Manage your inventory and product catalogs.' }
   };
 
   const currentMeta = pageMeta[location.pathname] || pageMeta['/'];
@@ -21,6 +23,7 @@ function AppShell() {
         <main style={{ minHeight: 'calc(100vh - 64px)' }}>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/products" element={<ProductsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
